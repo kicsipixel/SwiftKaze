@@ -15,5 +15,18 @@ public class SwiftKaze {
         
         return architecture.rawValue
     }
+    
+    public func operatingSystemName() -> String {
+        var os: String!
+        
+        #if os(Windows)
+                os = "Windows"
+        #elseif os(macOS)
+                os = "macOS"
+        #elseif os(Linux)
+                os = "Linux"
+        #endif
+        return os
+    }
 }
 
