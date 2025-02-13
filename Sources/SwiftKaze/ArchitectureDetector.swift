@@ -8,6 +8,9 @@ public enum CPUArchitecture: String {
 }
 
 public final class ArchitectureDetector {
+    
+    public init() { }
+    
     public func getMachineArchitecture() -> CPUArchitecture? {
         let getArchitectureTask = Process()
         getArchitectureTask.launchPath = "/usr/bin/uname"

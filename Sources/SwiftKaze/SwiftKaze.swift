@@ -3,7 +3,7 @@ import Foundation
 public class HelloWorld {
     let architectureDetector: ArchitectureDetector
     
-    init(architectureDetector: ArchitectureDetector = ArchitectureDetector()) {
+    public init(architectureDetector: ArchitectureDetector = ArchitectureDetector()) {
         self.architectureDetector = architectureDetector
     }
 
