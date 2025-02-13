@@ -1,14 +1,19 @@
 import Foundation
 
-public class HelloWorld {
+public class SwiftKaze {
     let architectureDetector: ArchitectureDetector
     
     public init(architectureDetector: ArchitectureDetector = ArchitectureDetector()) {
         self.architectureDetector = architectureDetector
     }
-
-    public func hello() -> String {
-        return "Hello, World!"
+    
+    /// Returns the architecture name
+    public func binaryName() -> String? {
+        guard let architecture = architectureDetector.getMachineArchitecture() else {
+            return nil
+        }
+        
+        return architecture.rawValue
     }
 }
 
