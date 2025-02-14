@@ -3,7 +3,11 @@ import Foundation
 public struct DownloadModel {
     let fileName: String
     
-    func destinationURL(allowsOverwrite: Bool = false) throws -> URL {
+    public init(fileName: String) {
+        self.fileName = fileName
+    }
+    
+    public func destinationURL(allowsOverwrite: Bool = false) throws -> URL {
         let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         let fileURL = temporaryDirectoryURL.appendingPathComponent(self.fileName)
         
