@@ -28,4 +28,17 @@ public final class ArchitectureDetector {
         
         return nil
     }
+    
+    public func operatingSystemName() -> String {
+        var os: String!
+        
+        #if os(Windows)
+                os = "Windows"
+        #elseif os(macOS)
+                os = "macOS"
+        #else
+                os = "Linux"
+        #endif
+        return os
+    }
 }
