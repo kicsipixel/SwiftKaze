@@ -42,12 +42,12 @@ let kaze = SwiftKaze()
 
 try await kaze.run(
     input: URL(filePath: "Resources/Styles/app.css"),
-    output: URL(filePath: "Public/styles/app.css"),
+    output: URL(filePath: "public/styles/app.css"),
     in: URL(filePath: ".")
 )
 ```
 
-### With Options
+### Pin to Specific Version
 
 ```swift
 let kaze = SwiftKaze(version: .fixed("4.1.18"))
@@ -55,19 +55,7 @@ let kaze = SwiftKaze(version: .fixed("4.1.18"))
 try await kaze.run(
     input: URL(filePath: "src/input.css"),
     output: URL(filePath: "dist/output.css"),
-    in: URL(filePath: "."),
-    options: .minify, .sourceMap
-)
-```
-
-### Watch Mode
-
-```swift
-try await kaze.run(
-    input: inputCSS,
-    output: outputCSS,
-    in: projectDir,
-    options: .watch
+    in: URL(filePath: ".")
 )
 ```
 
@@ -83,10 +71,9 @@ func buildApplication() async throws -> some ApplicationProtocol {
     // Compile Tailwind CSS on startup
     let kaze = SwiftKaze()
     try await kaze.run(
-        input: URL(filePath: "Resources/Styles/app.css"),
-        output: URL(filePath: "Public/styles/app.css"),
-        in: URL(filePath: "."),
-        options: .minify
+        input: Bundle.module.url(forResource: "app", withExtension: "css")!,
+        output: URL(filePath: "public/styles/app.css"),
+        in: URL(filePath: ".")
     )
 
     // Serve static files
@@ -98,19 +85,24 @@ func buildApplication() async throws -> some ApplicationProtocol {
 }
 ```
 
-For development with watch mode, run Tailwind in a separate task:
+### Include Generated CSS in Your Templates
 
-```swift
-// In development, watch for changes
-Task {
-    try await kaze.run(
-        input: inputCSS,
-        output: outputCSS,
-        in: projectDir,
-        options: .watch
-    )
-}
+Add the generated CSS file to your HTML template:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/styles/app.css">
+</head>
+<body>
+    <!-- Your content with Tailwind classes -->
+    <h1 class="text-3xl font-bold text-blue-600">Hello, Tailwind!</h1>
+</body>
+</html>
 ```
+
+Make sure `FileMiddleware` is configured to serve from your `public` directory where the CSS is generated.
 
 ## API Reference
 
@@ -121,6 +113,12 @@ public init(
     version: TailwindVersion = .latest,
     directory: URL? = nil  // Where to store downloaded binaries
 )
+
+public func run(
+    input: URL,
+    output: URL,
+    in directory: URL
+) async throws
 ```
 
 ### TailwindVersion
@@ -131,17 +129,6 @@ public enum TailwindVersion {
     case fixed(String)       // e.g., "4.1.18" or "v4.1.18"
 }
 ```
-
-### Run Options
-
-| Option | Description |
-|--------|-------------|
-| `.watch` | Watch for file changes and rebuild automatically |
-| `.watchAlways` | Watch mode that keeps running when stdin closes |
-| `.minify` | Minify the output CSS |
-| `.optimize` | Optimize output without minifying |
-| `.sourceMap` | Generate a source map |
-| `.cwd(URL)` | Set the current working directory |
 
 ### Input CSS (Tailwind v4)
 
@@ -171,3 +158,7 @@ The package uses `FoundationNetworking` for URLSession on Linux. Make sure you h
 # Ubuntu/Debian
 apt-get install libcurl4-openssl-dev
 ```
+
+## License
+
+MIT

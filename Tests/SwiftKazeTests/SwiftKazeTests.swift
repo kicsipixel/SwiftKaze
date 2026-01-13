@@ -78,19 +78,6 @@ import Testing
   #expect(OperatingSystem.windows.executableExtension == ".exe")
 }
 
-// MARK: - Run Option Tests (Tailwind v4)
-
-@Test func runOptionArguments() {
-  #expect(SwiftKaze.RunOption.watch.arguments == ["--watch"])
-  #expect(SwiftKaze.RunOption.watchAlways.arguments == ["--watch=always"])
-  #expect(SwiftKaze.RunOption.minify.arguments == ["--minify"])
-  #expect(SwiftKaze.RunOption.optimize.arguments == ["--optimize"])
-  #expect(SwiftKaze.RunOption.sourceMap.arguments == ["--map"])
-
-  let cwdURL = URL(fileURLWithPath: "/path/to/project")
-  #expect(SwiftKaze.RunOption.cwd(cwdURL).arguments == ["--cwd", "/path/to/project"])
-}
-
 // MARK: - Integration Tests (require network)
 
 @Test func downloadAndRun() async throws {
@@ -127,40 +114,6 @@ import Testing
 
   let outputContent = try String(contentsOf: outputCSS, encoding: .utf8)
   #expect(!outputContent.isEmpty, "Output should not be empty")
-}
-
-@Test func downloadAndRunWithMinify() async throws {
-  let tmpDir = FileManager.default.temporaryDirectory
-    .appendingPathComponent("SwiftKazeTest-\(UUID().uuidString)", isDirectory: true)
-
-  defer {
-    try? FileManager.default.removeItem(at: tmpDir)
-  }
-
-  try FileManager.default.createDirectory(at: tmpDir, withIntermediateDirectories: true)
-
-  // Create input CSS file
-  let inputCSS = tmpDir.appendingPathComponent("input.css")
-  let cssContent = """
-    @import "tailwindcss";
-
-    .test {
-        color: red;
-    }
-    """
-  try cssContent.write(to: inputCSS, atomically: true, encoding: .utf8)
-
-  let outputCSS = tmpDir.appendingPathComponent("output.css")
-
-  let kaze = SwiftKaze(directory: tmpDir)
-  try await kaze.run(
-    input: inputCSS,
-    output: outputCSS,
-    in: tmpDir,
-    options: .minify
-  )
-
-  #expect(FileManager.default.fileExists(atPath: outputCSS.path), "Output CSS file should be created")
 }
 
 @Test func downloadCaching() async throws {
