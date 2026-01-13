@@ -1,14 +1,6 @@
 # SwiftKaze
 
-A Swift package to download and run the [Tailwind CSS](https://tailwindcss.com) CLI from Swift projects. Works with Tailwind CSS v4.
-
-## Features
-
-- Downloads Tailwind CSS binaries automatically from GitHub releases
-- Caches binaries by version to avoid repeated downloads
-- Supports macOS (arm64, x64) and Linux
-- Full Swift 6 concurrency support (`Sendable`, `async/await`)
-- Minimal dependencies (only swift-log)
+A Swift package to download and run the [Tailwind CSS](https://tailwindcss.com) CLI from Swift projects. Works with Tailwind CSS.
 
 ## Installation
 
@@ -104,45 +96,6 @@ Add the generated CSS file to your HTML template:
 
 Make sure `FileMiddleware` is configured to serve from your `public` directory where the CSS is generated.
 
-## API Reference
-
-### SwiftKaze
-
-```swift
-public init(
-    version: TailwindVersion = .latest,
-    directory: URL? = nil  // Where to store downloaded binaries
-)
-
-public func run(
-    input: URL,
-    output: URL,
-    in directory: URL
-) async throws
-```
-
-### TailwindVersion
-
-```swift
-public enum TailwindVersion {
-    case latest              // Uses latest release from GitHub
-    case fixed(String)       // e.g., "4.1.18" or "v4.1.18"
-}
-```
-
-### Input CSS (Tailwind v4)
-
-Tailwind CSS v4 uses CSS-based configuration. Your input CSS file should look like:
-
-```css
-@import "tailwindcss";
-
-/* Your custom styles */
-.btn {
-    @apply px-4 py-2 rounded;
-}
-```
-
 ## Requirements
 
 - Swift 6.0+
@@ -158,7 +111,3 @@ The package uses `FoundationNetworking` for URLSession on Linux. Make sure you h
 # Ubuntu/Debian
 apt-get install libcurl4-openssl-dev
 ```
-
-## License
-
-MIT
