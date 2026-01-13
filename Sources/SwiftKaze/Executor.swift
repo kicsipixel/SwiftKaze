@@ -34,7 +34,8 @@ public struct Executor: Sendable {
 
     do {
       try process.run()
-    } catch {
+    }
+    catch {
       throw SwiftKazeError.executionFailed(error.localizedDescription)
     }
 
