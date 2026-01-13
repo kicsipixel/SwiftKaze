@@ -4,24 +4,29 @@
 import PackageDescription
 
 let package = Package(
-    name: "SwiftKaze",
-    platforms: [
-        .macOS(.v14)
-    ],
-    products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "SwiftKaze",
-            targets: ["SwiftKaze"]),
-    ],
-    targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-        .target(
-            name: "SwiftKaze"),
-        .testTarget(
-            name: "SwiftKazeTests",
-            dependencies: ["SwiftKaze"]
-        ),
-    ]
+  name: "SwiftKaze",
+  platforms: [
+    .macOS(.v14)
+  ],
+  products: [
+    .library(
+      name: "SwiftKaze",
+      targets: ["SwiftKaze"]
+    )
+  ],
+  dependencies: [
+    .package(url: "https://github.com/apple/swift-log.git", from: "1.6.1")
+  ],
+  targets: [
+    .target(
+      name: "SwiftKaze",
+      dependencies: [
+        .product(name: "Logging", package: "swift-log")
+      ]
+    ),
+    .testTarget(
+      name: "SwiftKazeTests",
+      dependencies: ["SwiftKaze"]
+    ),
+  ]
 )
