@@ -37,11 +37,18 @@ Then add it to your target:
 import SwiftKaze
 
 let kaze = SwiftKaze()
+// Locate app.css inside the module bundle
+guard let inputURL = Bundle.module.url(forResource: "app", withExtension: "css") else {
+      throw HTTPError(.notFound, message: "File not found.")
+}
+
+// Output path inside Public folder (outside the bundle)
+let outputURL = URL(fileURLWithPath: "public/styles/app.css")
 
 try await kaze.run(
-    input: URL(filePath: "Resources/Styles/app.css"),
-    output: URL(filePath: "public/styles/app.css"),
-    in: URL(filePath: ".")
+        input: inputURL,
+        output: outputURL,
+        in: Bundle.module.bundleURL
 )
 ```
 
