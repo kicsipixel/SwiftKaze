@@ -1,6 +1,18 @@
 # SwiftKaze
+<p align="center">
+<img src="./img/logo.svg" />
+</p>
+<p align="center">
+<img src="./img/logo_no_bg.svg" />
+</p>
 
-A Swift package to download and run the [Tailwind CSS](https://tailwindcss.com) CLI from Swift projects. Works with Tailwind CSS.
+[![Swift](https://img.shields.io/badge/Swift-6.2%20|%206.1%20|%206.0-orange?logo=swift)](https://swift.org)
+[![Platforms](https://img.shields.io/badge/Platforms-macOS%20|%20Linux-blue?logo=swift)](https://swift.org)
+[![CI](https://github.com/kicsipixel/SwiftKaze/actions/workflows/ci.yml/badge.svg)](https://github.com/kicsipixel/SwiftKaze/actions/workflows/ci.yml)
+
+SwiftKaze takes its name from the Japanese word 風 (kaze), meaning “wind,” reflecting to [Tailwind CSS](https://tailwindcss.com).
+
+A Swift package to download and run the Tailwwind CSS CLI from Swift projects.
 
 ## Installation
 
