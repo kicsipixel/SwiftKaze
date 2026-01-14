@@ -6,7 +6,7 @@
 
 SwiftKaze takes its name from the Japanese word 風 (kaze), meaning “wind,” reflecting to [Tailwind CSS](https://tailwindcss.com).
 
-This Swift package downloads and runs the Tailwwind CSS CLI from Swift projects.
+This Swift package downloads and runs the Tailwind CSS CLI from Swift projects.
 
 ## Installation
 
