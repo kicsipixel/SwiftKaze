@@ -56,11 +56,18 @@ try await kaze.run(
 
 ```swift
 let kaze = SwiftKaze(version: .fixed("4.1.18"))
+// Locate app.css inside the module bundle
+guard let inputURL = Bundle.module.url(forResource: "app", withExtension: "css") else {
+      throw HTTPError(.notFound, message: "File not found.")
+}
+
+// Output path inside Public folder (outside the bundle)
+let outputURL = URL(fileURLWithPath: "public/styles/app.css")
 
 try await kaze.run(
-    input: URL(filePath: "src/input.css"),
-    output: URL(filePath: "dist/output.css"),
-    in: URL(filePath: ".")
+        input: inputURL,
+        output: outputURL,
+        in: Bundle.module.bundleURL
 )
 ```
 
