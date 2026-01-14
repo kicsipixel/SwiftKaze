@@ -8,7 +8,7 @@ Add SwiftKaze to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/kicsipixel/SwiftKaze.git", from: "0.0.1")
+    .package(url: "https://github.com/kicsipixel/SwiftKaze.git", from: "0.1.0")
 ]
 ```
 
@@ -58,7 +58,7 @@ import Hummingbird
 import SwiftKaze
 
 func buildApplication() async throws -> some ApplicationProtocol {
-    let router = Router()
+    let router = try buildRouter()
 
     // Compile Tailwind CSS on startup
     let kaze = SwiftKaze()
@@ -68,12 +68,19 @@ func buildApplication() async throws -> some ApplicationProtocol {
         in: URL(filePath: ".")
     )
 
-    // Serve static files
-    router.middlewares.add(FileMiddleware())
+    
+/// Build router
+func buildRouter() throws -> Router<AppRequestContext> {
+  let router = Router(context: AppRequestContext.self)
+  // Add middleware
+  router.addMiddleware {
+    // logging middleware
+    LogRequestsMiddleware(.info)
+    // serve static files
+    FileMiddleware()
+  }
 
-    // ... your routes
-
-    return Application(router: router)
+  return router
 }
 ```
 
@@ -188,12 +195,11 @@ struct PrepareCSS {
 }
 ```
 
-#### 4. Use CSSSetup in your app
+#### 4. Use CSSSetup in `App+build.swift`:
 
 ```swift
 import CSSSetup
 
-// In your app startup:
 try await CSSSetup.compileCSS(
     input: Bundle.module.url(forResource: "app", withExtension: "css")!,
     output: URL(filePath: "public/styles/app.css"),
@@ -203,7 +209,7 @@ try await CSSSetup.compileCSS(
 
 #### 5. Update Dockerfile
 
-Add these lines to your Dockerfile build stage:
+Add these lines to your Dockerfile **build** stage:
 
 ```dockerfile
 # SwiftKaze: Copy PrepareCSS tool (used to compile Tailwind CSS during build)

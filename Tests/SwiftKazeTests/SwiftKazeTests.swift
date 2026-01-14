@@ -4,11 +4,14 @@ import Testing
 @testable import SwiftKaze
 
 // MARK: - Architecture Detection Tests
-
 @Test func architectureDetection() {
   let detector = ArchitectureDetector()
   let architecture = detector.detectArchitecture()
 
+// Print detected architecture for debugging purposes
+  if let architecture = architecture {
+    print("Detected architecture: \(architecture.rawValue)")
+  } 
   #expect(architecture != nil, "Should detect CPU architecture")
 }
 
@@ -43,20 +46,18 @@ import Testing
 }
 
 // MARK: - TailwindVersion Tests
-
 @Test func versionReleaseTag() {
   let latestVersion = TailwindVersion.latest
   #expect(latestVersion.releaseTag == nil, "Latest version should have nil release tag")
 
-  let fixedWithV = TailwindVersion.fixed("v3.4.1")
-  #expect(fixedWithV.releaseTag == "v3.4.1")
+  let fixedWithV = TailwindVersion.fixed("v4.0.0")
+  #expect(fixedWithV.releaseTag == "v4.0.0")
 
-  let fixedWithoutV = TailwindVersion.fixed("3.4.1")
-  #expect(fixedWithoutV.releaseTag == "v3.4.1")
+  let fixedWithoutV = TailwindVersion.fixed("4.1.8")
+  #expect(fixedWithoutV.releaseTag == "v4.1.8")
 }
 
 // MARK: - CPU Architecture Tests
-
 @Test func cpuArchitectureTailwindNames() {
   #expect(CPUArchitecture.arm64.tailwindArchName == "arm64")
   #expect(CPUArchitecture.aarch64.tailwindArchName == "arm64")
@@ -65,7 +66,6 @@ import Testing
 }
 
 // MARK: - Operating System Tests
-
 @Test func operatingSystemTailwindNames() {
   #expect(OperatingSystem.macOS.tailwindOSName == "macos")
   #expect(OperatingSystem.linux.tailwindOSName == "linux")
@@ -79,7 +79,6 @@ import Testing
 }
 
 // MARK: - Integration Tests (require network)
-
 @Test func downloadAndRun() async throws {
   let tmpDir = FileManager.default.temporaryDirectory
     .appendingPathComponent("SwiftKazeTest-\(UUID().uuidString)", isDirectory: true)
