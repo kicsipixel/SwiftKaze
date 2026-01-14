@@ -96,6 +96,140 @@ Add the generated CSS file to your HTML template:
 
 Make sure `FileMiddleware` is configured to serve from your `public` directory where the CSS is generated.
 
+## Docker Support
+
+In Docker, the `public/` directory is typically made read-only for security. Since SwiftKaze compiles CSS at runtime, this requires a different approach:
+
+1. **Create a shared CSSSetup library** for CSS compilation logic
+2. **Pre-compile CSS during Docker build** using a `PrepareCSS` tool
+3. **Skip compilation at runtime** when the output directory is not writable
+
+### Setup
+
+#### 1. Create CSSSetup shared library
+
+Add targets to `Package.swift`:
+
+```swift
+targets: [
+    // Shared library for CSS compilation
+    .target(
+        name: "CSSSetup",
+        dependencies: [
+            .product(name: "SwiftKaze", package: "SwiftKaze"),
+        ],
+        path: "Sources/CSSSetup"
+    ),
+    .executableTarget(
+        name: "App",
+        dependencies: [
+            // ... other deps ...
+            "CSSSetup",
+        ],
+        // ...
+    ),
+    .executableTarget(
+        name: "PrepareCSS",
+        dependencies: [
+            "CSSSetup",
+        ],
+        path: "Sources/PrepareCSS"
+    ),
+]
+```
+
+#### 2. Create Sources/CSSSetup/CSSSetup.swift
+
+```swift
+import Foundation
+import SwiftKaze
+
+public enum CSSSetup {
+    public static func compileCSS(
+        input: URL,
+        output: URL,
+        skipIfNotWritable: Bool = false
+    ) async throws {
+        let outputDir = output.deletingLastPathComponent()
+
+        if skipIfNotWritable {
+            let dirExists = FileManager.default.fileExists(atPath: outputDir.path)
+            let isWritable = FileManager.default.isWritableFile(atPath: outputDir.path)
+            if dirExists && !isWritable {
+                return // Skip in Docker runtime
+            }
+        }
+
+        try FileManager.default.createDirectory(
+            at: outputDir,
+            withIntermediateDirectories: true
+        )
+
+        let kaze = SwiftKaze()
+        try await kaze.run(input: input, output: output, in: URL(filePath: "."))
+    }
+}
+```
+
+#### 3. Create Sources/PrepareCSS/main.swift
+
+```swift
+import CSSSetup
+import Foundation
+
+@main
+struct PrepareCSS {
+    static func main() async throws {
+        try await CSSSetup.compileCSS(
+            input: URL(filePath: "Sources/App/Resources/Styles/app.css"),
+            output: URL(filePath: "public/styles/app.css")
+        )
+    }
+}
+```
+
+#### 4. Use CSSSetup in your app
+
+```swift
+import CSSSetup
+
+// In your app startup:
+try await CSSSetup.compileCSS(
+    input: Bundle.module.url(forResource: "app", withExtension: "css")!,
+    output: URL(filePath: "public/styles/app.css"),
+    skipIfNotWritable: true  // Skip in Docker runtime
+)
+```
+
+#### 5. Update Dockerfile
+
+Add these lines to your Dockerfile build stage:
+
+```dockerfile
+# SwiftKaze: Copy PrepareCSS tool (used to compile Tailwind CSS during build)
+RUN cp "$(swift build --package-path /build -c release --show-bin-path)/PrepareCSS" ./
+
+# ... after copying resources, before copying public directory ...
+
+# ================================
+# SwiftKaze: Compile Tailwind CSS
+# ================================
+# Pre-compile CSS during build so public/ can be read-only at runtime.
+WORKDIR /build
+RUN /staging/PrepareCSS
+WORKDIR /staging
+# ================================
+# End SwiftKaze
+# ================================
+```
+
+### How It Works
+
+| Environment | CSS Compilation |
+|-------------|-----------------|
+| Local dev   | Automatic on app startup (directory is writable) |
+| Docker      | Pre-compiled during build, skipped at runtime (directory is read-only) |
+
 ## Requirements
 
 - Swift 6.0+
