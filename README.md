@@ -1,8 +1,4 @@
-<p align="center">
-<img src="./img/logo.svg" />
-</p>
-
-# SwiftKaze
+# SwiftKaze (風)
 
 [![Swift](https://img.shields.io/badge/Swift-6.2%20|%206.1%20|%206.0-orange?logo=swift)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/Platforms-macOS%20|%20Linux-blue?logo=swift)](https://swift.org)
