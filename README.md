@@ -236,21 +236,17 @@ try await CSSSetup.compileCSS(
 Add these lines to your Dockerfile **build** stage:
 
 ```dockerfile
-# SwiftKaze: Copy PrepareCSS tool (used to compile Tailwind CSS during build)
-RUN cp "$(swift build --package-path /build -c release --show-bin-path)/PrepareCSS" ./
-
-# ... after copying resources, before copying public directory ...
-
 # ================================
-# SwiftKaze: Compile Tailwind CSS
-# ================================
-# Pre-compile CSS during build so public/ can be read-only at runtime.
-WORKDIR /build
-RUN /staging/PrepareCSS
-WORKDIR /staging
-# ================================
-# End SwiftKaze
-# ================================
+  # BEGIN: Tailwind CSS / SwiftKaze
+  # ================================
+  # Build and run PrepareCSS tool to compile Tailwind CSS during Docker build.
+  # This pre-compiles CSS so public/ can remain read-only at runtime.
+  RUN swift build --package-path /build -c release --product "PrepareCSS" \
+      && cp "$(swift build --package-path /build -c release --show-bin-path)/PrepareCSS" ./ \
+      && cd /build && /staging/PrepareCSS && cd /staging
+  # ================================
+  # END: Tailwind CSS / SwiftKaze
+  # ================================
 ```
 
 ### How It Works
