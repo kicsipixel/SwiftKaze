@@ -207,8 +207,12 @@ import Foundation
 @main
 struct PrepareCSS {
     static func main() async throws {
+        guard let inputURL = Bundle.module.url(forResource: "app", withExtension: "css") else {
+            throw HTTPError(.notFound, message: "File not found.")
+        }
+
         try await CSSSetup.compileCSS(
-            input: URL(filePath: "Sources/App/Resources/Styles/app.css"),
+            input: inputURL,
             output: URL(filePath: "public/styles/app.css")
         )
     }
