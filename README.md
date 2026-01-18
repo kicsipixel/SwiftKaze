@@ -251,7 +251,7 @@ try await CSSSetup.compileCSS(
 
 #### 5. Update Dockerfile
 
-Add these lines to your Dockerfile **build** stage:
+Add these lines to your Dockerfile **build** stage, after the `RUN find -L … -regex '.*\.resources$'` … line:
 
 ```dockerfile
 # ================================
