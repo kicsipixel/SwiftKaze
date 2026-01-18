@@ -31,6 +31,24 @@ Then add it to your target:
 
 ## Usage
 
+### Setup
+
+Before using SwiftKaze, create an input CSS file at `Resources/Styles/app.css` with the following content:
+
+```css
+@import "tailwindcss";
+```
+
+This is the minimal starting point. You can later add customizations like `@theme` for custom design tokens:
+
+```css
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #3b82f6;
+}
+```
+
 ### Basic Example
 
 ```swift
