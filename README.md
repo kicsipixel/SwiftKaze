@@ -6,7 +6,7 @@
 
 SwiftKaze takes its name from the Japanese word 風 (kaze), meaning “wind,” reflecting to [Tailwind CSS](https://tailwindcss.com).
 
-A Swift package to download and run the Tailwwind CSS CLI from Swift projects.
+This Swift package downloads and runs the Tailwind CSS CLI from Swift projects.
 
 ## Installation
 
@@ -55,11 +55,18 @@ This is the minimal starting point. You can later add customizations like `@them
 import SwiftKaze
 
 let kaze = SwiftKaze()
+// Locate app.css inside the module bundle
+guard let inputURL = Bundle.module.url(forResource: "app", withExtension: "css") else {
+      throw HTTPError(.notFound, message: "File not found.")
+}
+
+// Output path inside Public folder (outside the bundle)
+let outputURL = URL(fileURLWithPath: "public/styles/app.css")
 
 try await kaze.run(
-    input: URL(filePath: "Resources/Styles/app.css"),
-    output: URL(filePath: "public/styles/app.css"),
-    in: URL(filePath: ".")
+        input: inputURL,
+        output: outputURL,
+        in: Bundle.module.bundleURL
 )
 ```
 
@@ -67,11 +74,18 @@ try await kaze.run(
 
 ```swift
 let kaze = SwiftKaze(version: .fixed("4.1.18"))
+// Locate app.css inside the module bundle
+guard let inputURL = Bundle.module.url(forResource: "app", withExtension: "css") else {
+      throw HTTPError(.notFound, message: "File not found.")
+}
+
+// Output path inside Public folder (outside the bundle)
+let outputURL = URL(fileURLWithPath: "public/styles/app.css")
 
 try await kaze.run(
-    input: URL(filePath: "src/input.css"),
-    output: URL(filePath: "dist/output.css"),
-    in: URL(filePath: ".")
+        input: inputURL,
+        output: outputURL,
+        in: Bundle.module.bundleURL
 )
 ```
 
@@ -211,8 +225,12 @@ import Foundation
 @main
 struct PrepareCSS {
     static func main() async throws {
+        guard let inputURL = Bundle.module.url(forResource: "app", withExtension: "css") else {
+            throw HTTPError(.notFound, message: "File not found.")
+        }
+
         try await CSSSetup.compileCSS(
-            input: URL(filePath: "Sources/App/Resources/Styles/app.css"),
+            input: inputURL,
             output: URL(filePath: "public/styles/app.css")
         )
     }
@@ -236,21 +254,17 @@ try await CSSSetup.compileCSS(
 Add these lines to your Dockerfile **build** stage:
 
 ```dockerfile
-# SwiftKaze: Copy PrepareCSS tool (used to compile Tailwind CSS during build)
-RUN cp "$(swift build --package-path /build -c release --show-bin-path)/PrepareCSS" ./
-
-# ... after copying resources, before copying public directory ...
-
 # ================================
-# SwiftKaze: Compile Tailwind CSS
-# ================================
-# Pre-compile CSS during build so public/ can be read-only at runtime.
-WORKDIR /build
-RUN /staging/PrepareCSS
-WORKDIR /staging
-# ================================
-# End SwiftKaze
-# ================================
+  # BEGIN: Tailwind CSS / SwiftKaze
+  # ================================
+  # Build and run PrepareCSS tool to compile Tailwind CSS during Docker build.
+  # This pre-compiles CSS so public/ can remain read-only at runtime.
+  RUN swift build --package-path /build -c release --product "PrepareCSS" \
+      && cp "$(swift build --package-path /build -c release --show-bin-path)/PrepareCSS" ./ \
+      && cd /build && /staging/PrepareCSS && cd /staging
+  # ================================
+  # END: Tailwind CSS / SwiftKaze
+  # ================================
 ```
 
 ### How It Works
