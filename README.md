@@ -91,25 +91,6 @@ try await kaze.run(
 )
 ```
 
-### Watch Mode (Development)
-
-During development, you can use `watch()` to automatically recompile CSS whenever your source files change. This uses Tailwind's built-in `--watch` mode. The method runs until the enclosing `Task` is cancelled:
-
-```swift
-let kaze = SwiftKaze()
-
-let watchTask = Task {
-    try await kaze.watch(
-        input: Bundle.module.url(forResource: "app", withExtension: "css")!,
-        output: URL(filePath: "public/styles/app.css"),
-        in: URL(filePath: ".")
-    )
-}
-
-// Later, to stop watching:
-watchTask.cancel()
-```
-
 ### Hummingbird Integration
 
 ```swift
@@ -119,23 +100,13 @@ import SwiftKaze
 func buildApplication() async throws -> some ApplicationProtocol {
     let router = try buildRouter()
 
+    // Compile Tailwind CSS on startup
     let kaze = SwiftKaze()
-
-    // One-shot compile for production
     try await kaze.run(
         input: Bundle.module.url(forResource: "app", withExtension: "css")!,
         output: URL(filePath: "public/styles/app.css"),
         in: URL(filePath: ".")
     )
-
-    // Or use watch mode for development (recompiles on file changes)
-    // let watchTask = Task {
-    //     try await kaze.watch(
-    //         input: Bundle.module.url(forResource: "app", withExtension: "css")!,
-    //         output: URL(filePath: "public/styles/app.css"),
-    //         in: URL(filePath: ".")
-    //     )
-    // }
 
 
 /// Build router
@@ -244,6 +215,8 @@ public enum CSSSetup {
         let kaze = SwiftKaze()
         try await kaze.run(input: input, output: output, in: URL(filePath: "."))
     }
+
+    /// Watches for file changes and recompiles CSS automatically.
 }
 ```
 
@@ -302,8 +275,8 @@ Add these lines to your Dockerfile **build** stage, after the `RUN find -L … 
 
 | Environment | CSS Compilation |
 |-------------|-----------------|
-| Local dev   | Use `watch()` for auto-recompilation on file changes, or `run()` for one-shot compile on startup |
-| Docker      | Pre-compiled during build with `run()`, skipped at runtime (directory is read-only) |
+| Local dev   | Automatic on app startup (directory is writable) |
+| Docker      | Pre-compiled during build, skipped at runtime (directory is read-only) |
 
 ## Requirements
 

@@ -11,7 +11,7 @@ import Testing
 // Print detected architecture for debugging purposes
   if let architecture = architecture {
     print("Detected architecture: \(architecture.rawValue)")
-  } 
+  }
   #expect(architecture != nil, "Should detect CPU architecture")
 }
 
@@ -76,70 +76,6 @@ import Testing
   #expect(OperatingSystem.macOS.executableExtension == "")
   #expect(OperatingSystem.linux.executableExtension == "")
   #expect(OperatingSystem.windows.executableExtension == ".exe")
-}
-
-// MARK: - Watch Mode Tests
-@Test func watchAndCancel() async throws {
-  let tmpDir = FileManager.default.temporaryDirectory
-    .appendingPathComponent("SwiftKazeTest-\(UUID().uuidString)", isDirectory: true)
-  let binaryDir = FileManager.default.temporaryDirectory
-    .appendingPathComponent("SwiftKazeBin-\(UUID().uuidString)", isDirectory: true)
-
-  defer {
-    try? FileManager.default.removeItem(at: tmpDir)
-    try? FileManager.default.removeItem(at: binaryDir)
-  }
-
-  try FileManager.default.createDirectory(at: tmpDir, withIntermediateDirectories: true)
-
-  let inputCSS = tmpDir.appendingPathComponent("input.css")
-  let cssContent = """
-    @import "tailwindcss";
-
-    .test {
-        color: red;
-    }
-    """
-  try cssContent.write(to: inputCSS, atomically: true, encoding: .utf8)
-
-  // Watch mode needs source files to scan for Tailwind classes
-  let htmlFile = tmpDir.appendingPathComponent("index.html")
-  try #"<div class="text-red-500">Hello</div>"#.write(to: htmlFile, atomically: true, encoding: .utf8)
-
-  let outputCSS = tmpDir.appendingPathComponent("output.css")
-
-  // Use a separate directory for the binary to avoid Tailwind scanning it
-  let kaze = SwiftKaze(directory: binaryDir)
-
-  let watchTask = Task {
-    try await kaze.watch(
-      input: inputCSS,
-      output: outputCSS,
-      in: tmpDir
-    )
-  }
-
-  // Poll for the output file to appear (initial compilation in watch mode)
-  let deadline = Date().addingTimeInterval(30)
-  while !FileManager.default.fileExists(atPath: outputCSS.path) && Date() < deadline {
-    try await Task.sleep(for: .milliseconds(500))
-  }
-
-  #expect(FileManager.default.fileExists(atPath: outputCSS.path), "Output CSS file should be created by watch mode")
-
-  watchTask.cancel()
-
-  // Wait for the task to finish after cancellation
-  let result = await watchTask.result
-
-  switch result {
-  case .success:
-    break
-  case .failure(let error):
-    if !(error is CancellationError) {
-      throw error
-    }
-  }
 }
 
 // MARK: - Integration Tests (require network)
