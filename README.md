@@ -8,6 +8,8 @@ SwiftKaze takes its name from the Japanese word 風 (kaze), meaning “wind,” 
 
 This Swift package downloads and runs the Tailwind CSS CLI from Swift projects.
 
+You can find tutorial [here](https://medium.com/@kicsipixel/meet-swiftkaze-tailwind-css-powered-by-swift-ea5fab8666f5).
+
 ## Installation
 
 Add SwiftKaze to your `Package.swift`:
