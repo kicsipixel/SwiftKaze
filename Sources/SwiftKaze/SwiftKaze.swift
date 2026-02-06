@@ -51,4 +51,41 @@ public final class SwiftKaze: Sendable {
 
     try await executor.run(executableURL: executableURL, workingDirectory: directory, arguments: arguments)
   }
+
+  /// Watches for file changes and recompiles Tailwind CSS automatically.
+  ///
+  /// This method runs indefinitely until the enclosing `Task` is cancelled.
+  ///
+  /// Example usage:
+  /// ```swift
+  /// let watchTask = Task {
+  ///     try await kaze.watch(
+  ///         input: inputCSSURL,
+  ///         output: outputCSSURL,
+  ///         in: projectDirectory
+  ///     )
+  /// }
+  /// // Later, to stop watching:
+  /// watchTask.cancel()
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - input: The input CSS file path.
+  ///   - output: The output CSS file path.
+  ///   - directory: The working directory for Tailwind.
+  public func watch(
+    input: URL,
+    output: URL,
+    in directory: URL
+  ) async throws {
+    let executableURL = try await downloader.download(version: version, directory: self.directory)
+
+    let arguments: [String] = [
+      "--input", input.path,
+      "--output", output.path,
+      "--watch",
+    ]
+
+    try await executor.runUntilCancelled(executableURL: executableURL, workingDirectory: directory, arguments: arguments)
+  }
 }
